@@ -1,0 +1,11 @@
+{% extends "blog_list.html" %}
+{% block title %}
+{{ type.type_name }}
+{% endblock title %}
+
+
+
+{% block blog_header %}
+{{blog_date}} 一共有{{ blogs.paginator.count }}篇博客
+{% endblock blog_header %}
+    

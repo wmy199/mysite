@@ -1,0 +1,7 @@
+ul.blog_types{
+    list-style-type:none;
+}
+div.blog:not(:last-child){
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f3f3f3;
+}

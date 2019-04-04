@@ -1,0 +1,11 @@
+{% extends "blog_list.html" %}
+{% block title %}
+{{ type.type_name }}
+{% endblock title %}
+
+
+
+{% block blog_header %}
+一共有{{ blogs.paginator.count }}篇 <a href="{% url 'blogs_with_type' type.type_name %}">{{ type.type_name}}</a> 相关博客
+{% endblock blog_header %}
+    

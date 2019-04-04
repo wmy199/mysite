@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% load staticfiles %}
+
+{% block title  %}
+{{ blog.title}}
+{% endblock title %}
+
+{% block extends %}
+<script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+<script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+{% endblock extends %}
+
+{% block content %}
+
+<div class="container">
+
+    <div class="row">
+
+
+        <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 col-md-offset-1">
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div style="">
+                        <h3>{{ blog.title }}</h3>
+                        <p>作者:{{ blog.author }}</p>
+                        <p>分类：
+                            <a href="{% url 'blogs_with_type' blog.blog_type.type_name %}">
+                                {{blog.blog_type}}
+                            </a>
+                        </p>
+                        <p>发布日期:{{blog.created_time | date:'Y-m-d D H:i:s'}}</p>
+                        <p>阅读({{blog.read_num}})</p>
+                        <div>
+                            <div style="text-align:center;">
+                                <img style="width: 300px;" src="{{ blog.img.url }}">
+                            </div>
+
+                            <div style="">
+                                <p> {{blog.content|safe}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 col-md-offset-1">
+            <div>
+
+                <div class="panel panel-default">
+                    <div class="panel-body">
+
+                        {% if user.is_authenticated %}
+                        {{user.username}}
+                        <form id="comment_form" action="{% url 'update_comment' %}" method="POST">
+                            {% csrf_token %}
+
+                            {% for field in  comment_form %}
+                            {{field}}
+                            {% endfor %}
+
+
+                            <button type="submit" class="btn btn-primary">评论</button>
+                        </form>
+
+
+                        {% else %}
+
+                        <a href="{%  url 'goto_login_page' %}?from={{request.get_full_path}}">login</a>
+
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">评论区</h3>
+                </div>
+                <div id="comment_list" class="panel-body">
+
+                    {% for comment_ in comments  %}
+                    <div>
+                        {{comment_.user.username}}
+                        {{comment_.comment_time | date:"Y-m-d D H:i:s"}}
+                        {{comment_.text | safe}}
+                    </div>
+
+
+                    {%empty%}
+                    暂无评论
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+
+{% endblock content %}
+
+
+{% block script_extends %}
+<script>
+    $("#comment_form").submit(function () {
+        CKEDITOR.instances['id_text'].updateElement();
+        //异步提交
+        $.ajax({
+            url: "{% url 'update_comment' %}",
+            type: 'POST',
+            data: $(this).serialize(),
+            cache: false,
+            success: function (data) {
+                console.log(data);
+                //插入数据
+                if (data['status'] == 'SUCCESS') {
+                    var comment_html = '<div>'+data['username']+'('+data['comment_time']+')'+data['text']+'</div>';
+                    $("#comment_list").prepend(comment_html);
+                    CKEDITOR.instances['id_text'].setData('');
+                }
+                else { }
+            },
+            error: function (xhr) {
+                console.log(xhr)
+            }
+        });
+        return false;
+    });
+</script>
+
+{% endblock script_extends %}
